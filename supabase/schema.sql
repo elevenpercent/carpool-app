@@ -1,15 +1,28 @@
--- Run this in your Supabase SQL editor
+-- Run this entire script in your Supabase SQL Editor
 
+-- Communities
+create table if not exists communities (
+  id uuid default gen_random_uuid() primary key,
+  name text not null,
+  school_name text not null,
+  neighborhood text not null,
+  code text not null unique,
+  created_at timestamptz default now()
+);
+
+-- Families (community-scoped)
 create table if not exists families (
   id uuid default gen_random_uuid() primary key,
+  community_id uuid references communities(id) on delete cascade,
   parent_name text not null,
-  email text not null unique,
+  email text not null,
   phone text not null,
   address text not null,
   lat float,
   lng float,
   seats int not null default 3,
-  created_at timestamptz default now()
+  created_at timestamptz default now(),
+  unique (community_id, email)
 );
 
 create table if not exists kids (
@@ -29,11 +42,13 @@ create table if not exists availability (
   pickup_time time
 );
 
--- Allow public read/write (community app — no auth needed)
+-- RLS — public read/write (no auth needed for community app)
+alter table communities enable row level security;
 alter table families enable row level security;
 alter table kids enable row level security;
 alter table availability enable row level security;
 
-create policy "public_all_families" on families for all using (true) with check (true);
-create policy "public_all_kids" on kids for all using (true) with check (true);
-create policy "public_all_availability" on availability for all using (true) with check (true);
+create policy "public_communities" on communities for all using (true) with check (true);
+create policy "public_families" on families for all using (true) with check (true);
+create policy "public_kids" on kids for all using (true) with check (true);
+create policy "public_availability" on availability for all using (true) with check (true);

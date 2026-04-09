@@ -1,3 +1,12 @@
+export interface Community {
+  id: string;
+  name: string;
+  school_name: string;
+  neighborhood: string;
+  code: string;
+  created_at: string;
+}
+
 export interface Kid {
   id?: string;
   family_id?: string;
@@ -17,6 +26,7 @@ export interface Availability {
 
 export interface Family {
   id: string;
+  community_id: string;
   parent_name: string;
   email: string;
   phone: string;
